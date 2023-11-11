@@ -40,13 +40,32 @@
     button:hover {
       background-color: #45a049;
     }
+
+    #logoCNP {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 50px; /* Ajusta el tamaño según sea necesario */
+      height: auto;
+    }
+
+    #creditos {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
 
-  <h2>Ficha de Servicio</h2>
+  <div id="creditos">
+    <p>Creado por arre_.a, R3als Company ©™</p>
+  </div>
 
-  <form id="fichaForm">
+  <img id="logoCNP" src="logo_cnp.png" alt="Logo CNP">
+
+  <form>
     <label for="placa">Placa del Agente:</label>
     <input type="text" id="placa" name="placa" required>
 
@@ -65,119 +84,65 @@
     <button type="button" onclick="borrarTodasLasFichas()">Borrar Todas las Fichas</button>
   </form>
 
-  <h2>Fichas Guardadas</h2>
-  <select id="fichasGuardadas" onchange="cargarFicha()">
-    <option value="">Seleccionar Ficha</option>
-  </select>
-
   <script>
     function guardarFicha() {
-      var placa = document.getElementById('placa').value;
-      var servicios = document.getElementById('servicios').value;
-      var unidad = document.getElementById('unidad').value;
-      var informacion = document.getElementById('informacion').value;
-
       var ficha = {
-        placa: placa,
-        servicios: servicios,
-        unidad: unidad,
-        informacion: informacion
+        placa: document.getElementById('placa').value,
+        servicios: document.getElementById('servicios').value,
+        unidad: document.getElementById('unidad').value,
+        informacion: document.getElementById('informacion').value
       };
 
-      // Obtener fichas almacenadas
       var fichasGuardadas = JSON.parse(localStorage.getItem('fichas')) || [];
-
-      // Agregar nueva ficha
       fichasGuardadas.push(ficha);
-
-      // Guardar en el almacenamiento local
       localStorage.setItem('fichas', JSON.stringify(fichasGuardadas));
-
-      // Actualizar la lista desplegable de fichas
-      actualizarListaDesplegable();
-    }
-
-    function actualizarListaDesplegable() {
-      var fichasGuardadas = JSON.parse(localStorage.getItem('fichas')) || [];
-      var select = document.getElementById('fichasGuardadas');
-
-      // Limpiar opciones antiguas
-      while (select.firstChild) {
-        select.removeChild(select.firstChild);
-      }
-
-      // Agregar la opción predeterminada
-      var option = document.createElement('option');
-      option.value = "";
-      option.text = "Seleccionar Ficha";
-      select.add(option);
-
-      // Agregar las opciones de las fichas guardadas
-      fichasGuardadas.forEach(function(ficha, index) {
-        var option = document.createElement('option');
-        option.value = index.toString();
-        option.text = ficha.placa;
-        select.add(option);
-      });
     }
 
     function cargarFicha() {
-      var index = document.getElementById('fichasGuardadas').value;
+      var fichasGuardadas = JSON.parse(localStorage.getItem('fichas')) || [];
+      var placa = document.getElementById('placa').value;
 
-      if (index !== "") {
-        var fichasGuardadas = JSON.parse(localStorage.getItem('fichas')) || [];
-        var ficha = fichasGuardadas[index];
+      var ficha = fichasGuardadas.find(function (item) {
+        return item.placa === placa;
+      });
 
-        document.getElementById('placa').value = ficha.placa;
+      if (ficha) {
         document.getElementById('servicios').value = ficha.servicios;
         document.getElementById('unidad').value = ficha.unidad;
         document.getElementById('informacion').value = ficha.informacion;
+      } else {
+        alert('No se encontró la ficha para esta placa.');
       }
     }
 
     function borrarFicha() {
-      var index = document.getElementById('fichasGuardadas').value;
+      var fichasGuardadas = JSON.parse(localStorage.getItem('fichas')) || [];
+      var placa = document.getElementById('placa').value;
 
-      if (index !== "") {
-        var fichasGuardadas = JSON.parse(localStorage.getItem('fichas')) || [];
+      var indice = fichasGuardadas.findIndex(function (item) {
+        return item.placa === placa;
+      });
 
-        // Eliminar la ficha seleccionada
-        fichasGuardadas.splice(index, 1);
-
-        // Guardar en el almacenamiento local
+      if (indice !== -1) {
+        fichasGuardadas.splice(indice, 1);
         localStorage.setItem('fichas', JSON.stringify(fichasGuardadas));
-
-        // Actualizar la lista desplegable de fichas
-        actualizarListaDesplegable();
+        limpiarFormulario();
+      } else {
+        alert('No se encontró la ficha para esta placa.');
       }
     }
 
     function borrarTodasLasFichas() {
       localStorage.removeItem('fichas');
-
-      // Limpiar la lista desplegable de fichas
-      var select = document.getElementById('fichasGuardadas');
-      while (select.firstChild) {
-        select.removeChild(select.firstChild);
-      }
-
-      // Agregar la opción predeterminada
-      var option = document.createElement('option');
-      option.value = "";
-      option.text = "Seleccionar Ficha";
-      select.add(option);
-
-      // Limpiar los campos del formulario
-      document.getElementById('placa').value = "";
-      document.getElementById('servicios').value = "";
-      document.getElementById('unidad').value = "";
-      document.getElementById('informacion').value = "";
+      limpiarFormulario();
     }
 
-    // Cargar la lista de fichas al cargar la página
-    window.onload = function() {
-      actualizarListaDesplegable();
-    };
+    function limpiarFormulario() {
+      document.getElementById('placa').value = '';
+      document.getElementById('servicios').value = '';
+      document.getElementById('unidad').value = '';
+      document.getElementById('informacion').value = '';
+    }
   </script>
 
 </body>
