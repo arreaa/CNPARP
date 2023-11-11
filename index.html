@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ficha de Servicio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Ficha de Servicio</h2>
+
+  <form id="fichaForm">
+    <label for="placa">Placa del Agente:</label>
+    <input type="text" id="placa" name="placa" required>
+
+    <label for="servicios">Servicios realizados el día de hoy:</label>
+    <textarea id="servicios" name="servicios" rows="5" required></textarea>
+
+    <label for="unidad">Unidad utilizada:</label>
+    <input type="text" id="unidad" name="unidad" required>
+
+    <label for="informacion">Información relevante para el servicio:</label>
+    <textarea id="informacion" name="informacion" rows="5" required></textarea>
+
+    <button type="button" onclick="guardarFicha()">Guardar</button>
+    <button type="button" onclick="cargarFicha()">Cargar Ficha</button>
+    <button type="button" onclick="borrarFicha()">Borrar Ficha</button>
+    <button type="button" onclick="borrarTodasLasFichas()">Borrar Todas las Fichas</button>
+  </form>
+
+  <h2>Fichas Guardadas</h2>
+  <select id="fichasGuardadas" onchange="cargarFicha()">
+    <option value="">Seleccionar Ficha</option>
+  </select>
+
+  <script>
+    function guardarFicha() {
+      var placa = document.getElementById('placa').value;
+      var servicios = document.getElementById('servicios').value;
+      var unidad = document.getElementById('unidad').value;
+      var informacion = document.getElementById('informacion').value;
+
+      var ficha = {
+        placa: placa,
+        servicios: servicios,
+        unidad: unidad,
+        informacion: informacion
+      };
+
+      // Obtener fichas almacenadas
+      var fichasGuardadas = JSON.parse(localStorage.getItem('fichas')) || [];
+
+      // Agregar nueva ficha
+      fichasGuardadas.push(ficha);
+
+      // Guardar en el almacenamiento local
+      localStorage.setItem('fichas', JSON.stringify(fichasGuardadas));
+
+      // Actualizar la lista desplegable de fichas
+      actualizarListaDesplegable();
+    }
+
+    function actualizarListaDesplegable() {
+      var fichasGuardadas = JSON.parse(localStorage.getItem('fichas')) || [];
+      var select = document.getElementById('fichasGuardadas');
+
+      // Limpiar opciones antiguas
+      while (select.firstChild) {
+        select.removeChild(select.firstChild);
+      }
+
+      // Agregar la opción predeterminada
+      var option = document.createElement('option');
+      option.value = "";
+      option.text = "Seleccionar Ficha";
+      select.add(option);
+
+      // Agregar las opciones de las fichas guardadas
+      fichasGuardadas.forEach(function(ficha, index) {
+        var option = document.createElement('option');
+        option.value = index.toString();
+        option.text = ficha.placa;
+        select.add(option);
+      });
+    }
+
+    function cargarFicha() {
+      var index = document.getElementById('fichasGuardadas').value;
+
+      if (index !== "") {
+        var fichasGuardadas = JSON.parse(localStorage.getItem('fichas')) || [];
+        var ficha = fichasGuardadas[index];
+
+        document.getElementById('placa').value = ficha.placa;
+        document.getElementById('servicios').value = ficha.servicios;
+        document.getElementById('unidad').value = ficha.unidad;
+        document.getElementById('informacion').value = ficha.informacion;
+      }
+    }
+
+    function borrarFicha() {
+      var index = document.getElementById('fichasGuardadas').value;
+
+      if (index !== "") {
+        var fichasGuardadas = JSON.parse(localStorage.getItem('fichas')) || [];
+
+        // Eliminar la ficha seleccionada
+        fichasGuardadas.splice(index, 1);
+
+        // Guardar en el almacenamiento local
+        localStorage.setItem('fichas', JSON.stringify(fichasGuardadas));
+
+        // Actualizar la lista desplegable de fichas
+        actualizarListaDesplegable();
+      }
+    }
+
+    function borrarTodasLasFichas() {
+      localStorage.removeItem('fichas');
+
+      // Limpiar la lista desplegable de fichas
+      var select = document.getElementById('fichasGuardadas');
+      while (select.firstChild) {
+        select.removeChild(select.firstChild);
+      }
+
+      // Agregar la opción predeterminada
+      var option = document.createElement('option');
+      option.value = "";
+      option.text = "Seleccionar Ficha";
+      select.add(option);
+
+      // Limpiar los campos del formulario
+      document.getElementById('placa').value = "";
+      document.getElementById('servicios').value = "";
+      document.getElementById('unidad').value = "";
+      document.getElementById('informacion').value = "";
+    }
+
+    // Cargar la lista de fichas al cargar la página
+    window.onload = function() {
+      actualizarListaDesplegable();
+    };
+  </script>
+
+</body>
+</html>
